@@ -38,3 +38,4 @@ jobs:
               --source "test artifacts" \
               --pattern "*.yaml" \
               --overwrite
+              --auth-mode login
