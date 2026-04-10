@@ -26,6 +26,7 @@ jobs:
           
           # Use Azure Credentials (Service Principal secret
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          allow-no-subscriptions: true
 
       - name: Sync to Azure Blob Storage
         uses: azure/CLI@v2
