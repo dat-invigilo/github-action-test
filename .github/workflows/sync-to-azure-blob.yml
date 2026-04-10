@@ -24,7 +24,7 @@ jobs:
         uses: azure/login@v2
         with:
           
-          # Use Azure Credentials (Service Principal secret)
+          # Use Azure Credentials (Service Principal secret
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Sync to Azure Blob Storage
