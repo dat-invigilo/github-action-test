@@ -37,5 +37,5 @@ jobs:
               --destination ${{ secrets.AZURE_STORAGE_CONTAINER_NAME }} \
               --source "test artifacts" \
               --pattern "*.yaml" \
-              --overwrite
+              --overwrite \
               --auth-mode login
