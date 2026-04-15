@@ -1,0 +1,27 @@
+DEPLOYMENT:
+  NUM_GPUS: 1
+  GPU_IDS: [0]
+  NUM_CAMERAS_PER_GPU: 10
+  SHARED_VOLUME: /shared_volume/
+  MOUNT_PATH: /shared_volume/
+  RESTART_INTERVAL: 1
+  SHARED_VOLUME_LOCAL_PATH: /home/invigilo/shared_volume/
+  HITL: 1 # 0: off , 1: on
+  HITL_PLATFORM: "Telegram" # Telegram, Datapure
+  SEND_INCIDENT: 0 # 0: off , 1: on
+  HYBRID_MODE: 1 # 0: off , 1: on (if on, send to azure blob storage else send to minio)
+  SEND_DIRECTLY_TO_BACKEND: 1 # 0: send to minio, 1: send directly to backend
+  AICAM2_HOST: '0.0.0.0'
+  AICAM2_PORT: 5005
+  PORTS:
+    - 5005
+  TEST_MODE: 0 # 0: off , 1: on
+ 
+
+DEEPSTREAM:
+  NUM_PIPELINES: 1
+  PIPELINES:
+  - C1V2
+  SPLIT_GPU: 0
+  TRACKER: 1
+  SMART_RECORD: 1

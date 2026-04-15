@@ -1,0 +1,95 @@
+DEPLOYMENT:
+  NUM_GPUS: 1
+  GPU_IDS: [0]
+  NUM_CAMERAS_PER_GPU: 15
+  SHARED_VOLUME: /shared_volume/
+  MOUNT_PATH: /shared_volume/
+  RESTART_INTERVAL: 1
+  SHARED_VOLUME_LOCAL_PATH: /home/invigilo/shared_volume/
+  HITL: 1 # 0: off , 1: on
+  HITL_PLATFORM: "Telegram" # Telegram, Datapure
+  SEND_INCIDENT: 0 # 0: off , 1: on
+  HYBRID_MODE: 1 # 0: off , 1: on (if on, send to azure blob storage else send to minio)
+  SEND_DIRECTLY_TO_BACKEND: 1 # 0: send to minio, 1: send directly to backend
+  AICAM2_HOST: '0.0.0.0'
+  AICAM2_PORT: 5000
+  PORTS:
+    - 5000
+  TEST_MODE: 0 # 0: off , 1: on
+  MASK: 1
+
+
+DEEPSTREAM:
+  NUM_PIPELINES: 1
+  PIPELINES:
+    - L1
+  SPLIT_GPU: 0  # 0: False (default), 1: True (if more than 1 gpu) // If True, each pipeline will be run on a separate GPU
+  TRACKER: 1  # 0: False, 1: True
+
+  L1:
+    VERSION: 7.0
+    APP_ROOT: /opt/nvidia/deepstream/deepstream-7.0/sources/apps/sample_apps/deepstream-app/
+    NUM_GPUS_PIPELINE: 1
+    GPU_IDS_PIPELINE: [0]
+    IMAGE: anandakumar1996/l1:v1.4.3
+    STREAMMUX_RESOLUTION:
+      - 1280 # width
+      - 720 # height
+    SHARED_FOLDERS:
+      - detections/
+      - download_frames/
+      - annotated_frames/
+
+    PGIE:
+      PRESENT: 1
+      MODEL: weights/megalogisticsv2_1280_64e.onnx
+      MODEL_INPUT_ID: input
+      MODEL_INPUT_SIZE:
+        - 1280 # width
+        - 1280 # height
+      NETWORK_TYPE: 0 # 0=Detector, 1=Classifier, 2=Segmentation, 3=Instance Segmentation
+      LABELS: config/labels/labels.txt
+      CLASSES: 26
+      INTERVAL: 0
+      FILTER_OUT_CLASS_IDS: []
+      NETWORK_TYPE_FUNC_NAME: NvDsInferParseYolo
+      CUSTOM_LIB_PATH: /opt/nvidia/deepstream/deepstream-7.0/sources/apps/sample_apps/deepstream-app/custom_lib/nvdsinfer_custom_impl_Yolo/libnvdsinfer_custom_impl_Yolo.so
+      PRE_CLUSTER_THRESHOLD: 0.25
+      NMS_IOU_THRESHOLD: 0.5
+      TOP_K: 300
+
+    SGIE:
+      PRESENT: 1
+      NUM_SGIE: 1
+      INDEXES:
+        0:
+          MODEL: weights/fallen_person2.onnx
+          MODEL_INPUT_ID: input
+          MODEL_INPUT_SIZE:
+            - 224 # width
+            - 224 # height
+          NETWORK_TYPE: 1 # 0=Detector, 1=Classifier, 2=Segmentation, 3=Instance Segmentation
+          LABELS: config/labels/labels_fallen_person.txt
+          CLASSES: 3
+          INTERVAL: 0
+          NETWORK_TYPE_FUNC_NAME: NvDsInferClassiferParseCustomSoftmax
+          CUSTOM_LIB_PATH: /opt/nvidia/deepstream/deepstream-7.0/sources/apps/sample_apps/deepstream-app/custom_lib/nvdsinfer_custom_fallen_person/libnvds_infercustomparser.so
+          CLASSIFIER_THRESHOLD: 0.3
+          NMS_IOU_THRESHOLD: 0.4
+          OPERATE_ON_CLASS_IDS: [0]
+
+          PREPROCESS:
+            PRESENT: 0
+
+    CUSTOM_PLUGIN:
+      PRESENT: 1
+      NUM_CUSTOM_PLUGIN: 1
+      INDEXES:
+        0:
+          NAME: hitl
+          CONFIG_DATA:
+          - cam-ai-mapping-id: 10
+          - ai-seq-mapping-id: 10
+          - dumb-timer: 5
+          - parser-url: testing.com
+          - endpoint: testing
